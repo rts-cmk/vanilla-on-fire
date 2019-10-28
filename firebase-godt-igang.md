@@ -333,3 +333,16 @@ db.collection("todos").onSnapshot(function(snapshot) {
   });
 });
 ```
+
+# Publiser din TODO app online!
+
+Nu har du en forholdsvis simpel todoapp, den skal da udgives på nettet, så du kan afprøve den på f.eks. din mobil.
+
+Her vil vi aprøve **[https://app.netlify.com/](https://app.netlify.com/)** som I måske allerede har benyttet.
+
+Start med at oprette en konto (eller log på, hvis du allerede har oprettet en). Har du ikke en konto, så log på med github, det er super let.
+
+Når du er logget på, kan du trække en mappe med en index.html ind i dne store firkant med teksten "Want to deploy a new site without connecting to Git?
+Drag and drop your site folder here".
+
+Det er vigtigt at html filen hedder **index.html**
