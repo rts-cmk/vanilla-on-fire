@@ -309,3 +309,27 @@ form.addEventListener("submit", function(event) {
     });
 });
 ```
+
+# Live updates!
+
+Som du nok har lagt mærke til efterhånden, så er det lidt irriterende at siden skal indlæses helt fra bunden hver eneste gang der sker en handling.
+
+en af fordelene ved Firestore, er at den kan lytte på ændringer, og så kan vi håndtere de ændrede data med det samme.
+
+Første skridt er at udkommentere alle de `.then()` funktioner der udføres ved Opret, ret, og slet, så stopper siden med at genindlæses.
+
+Næste skridt er at oprette funktionen til at håndtere live-ændringer, den kaldes `onSnapshot`, og ser sådan her ud:
+
+```javascript
+db.collection("todos").onSnapshot(function(snapshot) {
+  let changes = snapshot.docChanges();
+  changes.forEach(function(change) {
+    if (change.type == "added") {
+      renderTodo(change.doc);
+    } else if (change.type == "removed") {
+      let li = todos.querySelector(`[data-id=${change.doc.id}]`);
+      todos.removeChild(li);
+    }
+  });
+});
+```
