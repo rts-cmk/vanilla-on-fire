@@ -71,3 +71,35 @@ Det er muligt at finde frem til javascript koden igen, hvis du får klikket væk
 
 
 
+# Knyt en Database til projektet
+
+Når appen er sat op, skal vi beslutte hvilke services appen skal benytte, vi koncentrerer os om **Database** i første omgang, så find det menupunkt i menuen til venstre.
+
+Her skal man beslutte om man vil benytte den originale *Realtime Database* eller det nye *Cloud Firestore* 
+
+Vi vil gerne arbejde med de nye teknologier, så vi klikker på **Create database** under **Cloud Firestore**
+
+Da vi er igang med at lære at benytte Firestore, så sættes databasen op til at kære i **Test mode**, vi er klar over det gør at ALLE vil have adgang til at læse/skrive, men det simplificerer vores app meget her i starten.
+
+Det næste Firebase vil vide, er hvor du mener datalageres skal være placeret fysisk, det er et spørgsmål om optimering af latency og lign, så det er vigtigt at vælge en server tæt på den primære region... vi er i Europa, så vi vælger den første der hedder noget med **Eur** i navnet.
+
+Klik Done og vent på opsætningen af databasen.
+
+# Collections
+
+Firestore arbejder ud fra et koncept kaldet "Collections", som minder en smule om "Tabeller" i en MySQL database, men det er meget mere fleksibelt end en SQL tabel.
+Det er teknisk set nærmere et JSON objekt, hvor vi selv kan bestemme hvilke felter hver enkelt **document** skal have, og hvert **document** kan indeholde  **collections** af andre **documents**... så det er super fleksibelt.
+
+Alle **Collections** skal have et navn, så klik på **Start Collection** og udfyld **Collection ID** med "todos", og klik **Next**
+
+Vi kan indsætte et **document** manuelt, så der er lidt data i vores collection:
+
+* title, string, "Forbind til Firebase"
+* content, string, "Der skal oprettes en forbindelse til Firebase og indholdet udskrives på en hjemmeside"
+* isDone, boolean, false
+
+Klik **Save** når alt det er tastet (eller noget der ligner).
+
+Derefter vil det være muligt at se noget der minder om dette billede:
+![Todo colecetion](assets/collection.png)
+
