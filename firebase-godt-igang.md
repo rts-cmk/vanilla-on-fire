@@ -302,7 +302,7 @@ form.addEventListener("submit", function(event) {
     .add({
       title: form.title.value,
       content: form.content.value,
-      isDone: form.isDone != undefined ? form.isDone.checked : false
+      isDone: form.done != undefined ? form.done.checked : false
     })
     .then(function() {
       window.location.replace(window.location);
