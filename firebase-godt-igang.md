@@ -265,3 +265,47 @@ remove.addEventListener("click", function(event) {
   }
 });
 ```
+
+# Opret data
+
+For at indsætte en ny todo fra vores hjemmeside, skal vi have en formular med et titel felt, og et felt til indholdet samt en checkbox. Der bør også være en knap til at submitte data.
+
+```html
+<form id="add-todo">
+  <div>
+    <label>Titel:</label>
+    <input type="text" name="title" />
+  </div>
+  <div>
+    <label>Indhold</label>
+    <textarea name="content"></textarea>
+  </div>
+  <div>
+    <label>Afsluttet?</label>
+    <input type="checkbox" name="done" />
+  </div>
+  <button>Opret</button>
+</form>
+```
+
+Der skal også knyttes en smule javascript til submit eventen, så vi kan gribe data og sende til firebase:
+
+```javascript
+const form = document.querySelector("#add-todo");
+// indsæt data
+form.addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  // HUSK VALIDERING!!!!!
+
+  db.collection("todos")
+    .add({
+      title: form.title.value,
+      content: form.content.value,
+      isDone: form.isDone != undefined ? form.isDone.checked : false
+    })
+    .then(function() {
+      window.location.replace(window.location);
+    });
+});
+```
