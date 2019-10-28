@@ -225,3 +225,43 @@ db.collection("todos")
     });
   });
 ```
+
+# Opdater data
+
+Der er en checkbox i vores todo element, som skal benyttes til at markere om et punkt er udført eller ej. Der skal skrives lidt kode for at opdatere firestore dokumentet
+
+Lige under `todos.appendChild(li);` inden i `renderTodo` funktionen, skrives den enventhandler der skal knyttes til checkboxen.
+
+```javascript
+checkbox.addEventListener("change", function(event) {
+  event.stopPropagation();
+  db.collection("todos")
+    .doc(doc.id)
+    .update({
+      isDone: checkbox.checked
+    })
+    .then(function() {
+      window.location.replace(window.location);
+    });
+});
+```
+
+# Slet data
+
+Der er en knap i vores todo element, som skal benyttes til at slette elementer. Der skal skrives lidt kode for at få knappen til at slette.
+
+Lige under `todos.appendChild(li);` inden i `renderTodo` funktionen, skrives den enventhandler der skal knyttes til knappen.
+
+```javascript
+remove.addEventListener("click", function(event) {
+  if (confirm("Vil du slette?")) {
+    let id = event.target.parentElement.getAttribute("data-id");
+    db.collection("todos")
+      .doc(id)
+      .delete()
+      .then(function() {
+        window.location.replace(window.location);
+      });
+  }
+});
+```
