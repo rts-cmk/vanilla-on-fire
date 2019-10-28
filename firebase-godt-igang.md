@@ -327,7 +327,7 @@ db.collection("todos").onSnapshot(function(snapshot) {
     if (change.type == "added") {
       renderTodo(change.doc);
     } else if (change.type == "removed") {
-      let li = todos.querySelector(`[data-id=${change.doc.id}]`);
+      let li = todos.querySelector(`li[data-id="${change.doc.id}"]`);
       todos.removeChild(li);
     }
   });
