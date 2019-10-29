@@ -153,7 +153,7 @@ Her benyttes funktionen `createUserWithEmailAndPassword` som opretter brugeren p
 
 Det elegante ved den funktion, er at brugeren logges på med det samme, efter det er lykkedes at oprette brugeren.
 
-## lyt på auth.onAuthStateChanged
+## Lyt på auth.onAuthStateChanged()
 
 Ligesom vi kan lytte efter hvornår en collection opdateres, så kan vi også lytte efter hvornår en bruger logger af eller på.
 
@@ -192,10 +192,72 @@ Læg mærke til at `onSnapshot()` funktionen har nu 2 callbacks, den første kal
 
 Da funktionen kører asynkront, er det faktisk ikke nødvendigt at flytte referencen til `#todos` ind i `auth.js`, fordi den konstant vil eksistere på det tidspunkt auth er færdig med at se på brugeren.
 
-## vis eller skjul data, baseret på login
+## Vis eller skjul data, baseret på login
 
 På nuværende tidspunkt vises alle elementer på skærmen, uanset om man er logget på eller ej.
 
 Det vil give mening at skjule todo-listen og todo-opret-formen hvis man ikke er logget på.
 
 Todo listen bør tømmes helt for elementer, det er ikke nok at sætte en `display:none` på den. Men formularer og logud knappen kan godt vises/skjules via display egenskaben.
+
+
+
+## Knyt ydeligere info til en bruger
+
+Nogle gange vil man gerne have flere data knyttet til en brugerprofil, end de begrænsede informationer Authentication tillader.
+
+Til det kan vi oprette endnu en collection i databasen, som kan bindes sammen med Authentication og den unikke id hver bruger får tildelt.
+
+Det kræver en lille tilpasning af `createUserWithEmailAndPassword()` funktionen. Samt at formularen til oprettelse har et inputfelt til at angive brugerens fulde navn.
+
+Collections og Documents er super fleksible, det er faktisk muligit at oprette dem direkte igennem koden, så vi behøver ikke at åbne firebase konsollen og oprette en collection til den ekstra bruger data.
+
+I eksemlet her under kaldes `db.collection('users')` som ikke eksisterer på nuværende tidspunkt, men det vil firestore helt automatisk oprette for os.
+
+Derudover forsøger vi at tilgå et dokument med den unikke id authentication har oprettet, det dokument findes heller ikke, men vil blive oprettet.
+
+Vi sætter en værdi i den dokument den lige har oprettet, nemlig værdien `fullname`, og på den måde har vi nu oprettet både en collection, et document og sat en værdi. 
+
+
+```javascript
+ auth.createUserWithEmailAndPassword(email, password)
+   .then(function (cred) {
+      console.log(cred);
+      // tilføj en return handling, som giver os muligheden for at "chaine" .then()
+      return db.collection('users').doc(cred.user.uid).set({
+         fullname: signupform.fullname.value
+      })
+   })
+   .then(function () {
+      signupform.reset();
+   })
+   .catch(function (error) {
+      document.querySelector('#signinform_error').textContent = error.message;
+   });
+
+```
+
+
+Det dokument der oprettes, vil have den samme id som Authentication brugerne har, og med det grundlag kan vi opsætte en regel for databasen, om at det kun er den specifikke bruger som har rettigheder til det dokument der er knyttet til brugeren.
+
+![bruger regel](assets/database-bruger-regel.png)
+
+Man får kun lov at oprette et dokument, hvis `request.auth.uid != null` og man får kun lov til at læse hvis `request.auth.uid == userId` dvs hvis det document der forsøges læst har den samme id som authentication id.
+Da der ikke er nogen write regel, får man ikke lov til at ændre på et document, men det kan tilføjes i stil med read reglen.
+
+## Tilgå de ekstra værdier knyttet til brugeren.
+
+Eftersom de ekstra info ikke er knyttet direkte til Authentication objektet, så er vi nødt til at foretage et enkelt kald til det document som er knyttet til brugeren.
+
+Det skal ske i `auth.onAuthStateChanged()` funktionen, der hvor vi har konstateret at brugeren er logget på (samme sted som der hvor vi har flyttet `onSnapshot`).
+
+```javascript
+db.collection('users').doc(user.uid).get().then(function (doc) {
+   // hvis der er et dokument, udskrives det, indsæt det i et html element
+   if (doc) {
+      console.log(doc.data().fullname);
+   }
+});
+```
+
+Nu har du sikkert nogle brugere i databasen som ikke har et fullname knyttet til brugerkontoen, så det kan være en ide at slette brugere fra Authentication og oprette dem igen, så du har al data. Eller du kan kopiere den unikke id fra Authentication siden, og benttye den til at manuelt indsætte documents med fullname i users collectionen.
