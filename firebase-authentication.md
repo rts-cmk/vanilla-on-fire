@@ -327,3 +327,55 @@ Når den er skrevet, skal vi sende funktionen til firebase serveren, det gøres 
 Så vil node forsøge at deploy funktionen til firebase, og forhåbentligt ende ud med et resultat i stil emd dette: 
 
 ![functions deploy](assets/functions-deploy.png)
+
+
+## Kald funktionen der sætter Custom claim
+
+Når det er klaret, kan vi oprette en enkelt formular på hjemmesiden, hvor vi kan angive en email og sende den til server-funktionen.
+
+Men først skal vi have adgang til firebase-functions, det sker ved at inkludere endnu et script i `<head>`
+
+```javascript
+<script src="https://www.gstatic.com/firebasejs/7.2.2/firebase-functions.js"></script>
+```
+
+Og ved firebase config kodeblokken skal vi aktivere funktionerne
+```javascript
+// referer til firebase functions
+const functions = firebase.functions();
+```
+
+Opret en simpel form med et email felt og en button, og knyt en eventlistener til formens submit event.
+```javascript
+const adminform = document.querySelector('#adminform');
+adminform.addEventListener('submit', function (event) {
+   event.preventDefault();
+   const email = adminform.username.value; // grib email fra formen
+   const addAdminRole = functions.httpsCallable('addAdminRole'); // referer til server funktionen
+
+   // kald funktionen med emailen som "data"
+   addAdminRole({ email: email })
+      .then(function (result) {
+         console.log(result);
+      })
+      .catch(function (error) {
+         console.log(error);
+      })
+});
+```
+
+## Arbejd med Custom Claim værdien på client siden
+
+Det er nødvendigt at logge brugenen af og på igen, for at få adgang til `admin` værdien, lige når den er blevet tildelt.
+
+Men derefter vil det være muligt at tjekke om en bruger er admin i koden, ved at opdatere `onAuthStateChanged()` funktionen. 
+```javascript
+if (user != null) {
+   user.getIdTokenResult().then(function (idTokenResult) {
+      console.log(idTokenResult.claims); // se alle de "claims" der er knyttet til brugeren
+      user.admin = idTokenResult.claims.admin;
+
+      // her køres alt det kode der før blev udført når en bruger er logget ind.
+   }
+}
+```
