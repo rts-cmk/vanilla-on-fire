@@ -379,3 +379,36 @@ if (user != null) {
    }
 }
 ```
+
+
+
+## Opret database admin regel 
+
+Nu hvor brugerene kan tildeles administrator rettigheder, så kan vi opdatere reglerne i databasen, så det f.eks. kun er administratoerer der har `write` adgang til todos collectionen.
+
+![database regler slut](assets/database-regler-endelig.png)
+
+Nu er reglerne at man skal være logget på for at se Todos, og man skal være administrator for at kunne oprette og ændre på Todos
+
+
+## Begræns hvem der har adgang til at køre addAdminRole
+
+Nu hvor det er muligt at kalde `addAdminRole()` fra clientside, er det vigtigt at vi på serveren sikrer at det kun er brugere med de nødvendige rettigheder som kan udføre funktionen.
+
+Det kan tilføjes ved at udvide funktionen i `functions/index.js` med et tjek på den contekst funktionen kaldes. Så tilføj dette som det først kode inde i funktionen:
+```javascript
+if (context.auth.token.admin != true) {
+   return { error: 'Kun en administrator kan oprette nye administratorer' }
+} 
+```
+Og kør endnu en `firebase deploy --only functions` og lad den køre færdig.
+
+Derefter test at "gør til admin" kun kan køres hvis brugeren der kalder den i forvejen er en admin... dvs du skal sikre du har en administrator FØR du deployer opdatering.
+
+Test også at det er muligt som administrator at opgradere en anden bruger.
+
+## Finish, funktionalitet og udgivelse.
+
+Nu er det om at sikre alle funktioner er synlige for dem de skal være tilgængelige for, og er sat en smule hensigtsmæssigt op, så siden er brugbar.
+
+Når det er finpudset nok, så lægges den opdaterede version op på Netlify, så det kan afprøves på forskellige platform (og af andre brugere).
