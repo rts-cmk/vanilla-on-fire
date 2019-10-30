@@ -261,3 +261,69 @@ db.collection('users').doc(user.uid).get().then(function (doc) {
 ```
 
 Nu har du sikkert nogle brugere i databasen som ikke har et fullname knyttet til brugerkontoen, så det kan være en ide at slette brugere fra Authentication og oprette dem igen, så du har al data. Eller du kan kopiere den unikke id fra Authentication siden, og benttye den til at manuelt indsætte documents med fullname i users collectionen.
+
+
+
+## Administratorer eller almindelige brugere
+
+Det vil være meget fristende at gemme info om en brugers rolle, i users collectionen, og derefter benytte den til at vise/skjule formularer og funktioner på hjemmesiden. Det er også en fin mulighed, men det forhinder ikke adgang til databasen.
+
+Der skal køres noget kode på serversiden for at binde Authentication brugeren sammen med det document der er oprettet til brugeren, og det er ikke bare lige til.
+
+Men istedet har firebase muligheden for at køre noget kaldet **Custom claims** som er værdier der kan bindes på f.eks. en Authentication user, og som vil være tilgængelig via en Token på serversiden, og derved vil være muligt at benytte som et parameter i en regel.
+
+For at kunne opsætte **Custom claims** skal vi have installeret et npm modul kaldet `firebase-tools`, det sker via `npm install firebase-tools -g` *(husk sudo hvis du er på en mac eller linux)*
+
+Når firebase tools er færdiginstalleret, skal der gives adgang til din firebase konto. der klares ved at køre kommandoen: `firebase login` Første gang skal man tillade firebase CLI får adgang til din google konto.
+
+Efter login skal firebase initialiseres: `firebase init functions`.
+Her vil man komme igennem en guide med flere spørgsmål.
+
+* vælg Javascript (eller typescript hvis du har helt styr på ts).
+* beslut dig for om du vil aktivere ESLint 
+* installer node modules
+
+## Opret en firebase server function
+
+I din projektmappe er der nu oprettet en ny mappe kaldet `functions` som indeholder en `index.js` fil.
+
+I den fil kan vi skrive Node kode, som kan udgives på firebase-functions og kaldes fra browseren. På den måde kan vi bede serveren om at udføre særlige handlinger som er sikret og kører i et beskyttet miljø.
+
+Vi ønsker at oprette en funktion der henter en bruger fra Authentication baseret på en email (kunne selvfølgelig også være uid, men email er nemmere at huske).
+Når vu har fundet brugeren, ønsker vi at sætte et **custom claim** på den bruger. Det er bare en fancy måde at sige vi ønsker at knytte en bestemt egenskab til brugen. I dette tilfælde, vil vi sætte brugeren til *admin*.
+
+Den færdige kode ser i filen `functions/index.js` sådan her ud, med masser af kommenterer: 
+```javascript
+const functions = require('firebase-functions');
+
+const admin = require('firebase-admin');
+admin.initializeApp();
+
+exports.addAdminRole = functions.https.onCall((data, context) => {
+   // find en bruger baseret på den email vi sender med til funktionen
+   // .getUserByEmail kan kun kaldes hvis requesten er en valid authenticated requst
+   return admin.auth().getUserByEmail(data.email).then(user => {
+      // når brugeren er fundet, sikres det at requesten er authenticated
+      // og derefter kaldes .setCustomUserClaims()
+      // vi giver den en user.uid og derefter sender et objekt med de værdier vi ønsker at sætte
+      // her er værdien ganske enkelt "admin:true"
+      return admin.auth().setCustomUserClaims(user.uid, {
+         admin: true
+      })
+   }).then(() => {
+      // når setCustomUserClaim er succesful, retureres en besked om at det lykekdes
+      return {
+         message: `Success ${data.email} has been made an Admin`
+      }
+   }).catch(err => {
+      // hvis noget fejler undervejs returneres fejlbeskeden
+      return err;
+   })
+});
+```
+
+Når den er skrevet, skal vi sende funktionen til firebase serveren, det gøres ved ar køre kommandoen `firebase deploy --only functions`
+
+Så vil node forsøge at deploy funktionen til firebase, og forhåbentligt ende ud med et resultat i stil emd dette: 
+
+![functions deploy](assets/functions-deploy.png)
