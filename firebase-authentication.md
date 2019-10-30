@@ -376,7 +376,7 @@ if (user != null) {
       user.admin = idTokenResult.claims.admin;
 
       // her køres alt det kode der før blev udført når en bruger er logget ind.
-   }
+   });
 }
 ```
 
