@@ -1,4 +1,4 @@
-# Udtræk fra firebase.firestore()
+# Udtræk fra firebase.firestore() 
 
 Ind til videre har vi fokuseret på opsætning og grundlæggende brug af firebase.firestore, det næste vi skal dyrke, er hvordan man trækker data ud og hvilke muligheder der er for filtrering og sortering og lign.
 
